@@ -45,26 +45,21 @@ _get-first-cword() {
 _complete-qubes() {
 	local qubes
 	local state="${1}"
+	local state_re=''
 	local cur="${COMP_WORDS[COMP_CWORD]}"
 	case "${state}" in
-		runtrans)
-			qubes=$(qvm-ls --raw-data | \
-				grep -i "|\(running\|transient\)|" | \
-				cut -f1 -d"|" | \
-				grep -v '^dom0$'
-			)
-			;;
 		running|halted|paused)
-			qubes=$(qvm-ls --raw-data | \
-				grep -i "|${state}|" | \
-				cut -f1 -d"|" | \
-				grep -v '^dom0$'
-			)
+			state_re="${state}"
+			;;
+		runtrans)
+			state_re='\(running\|transient\)'
 			;;
 		any_state)
-			qubes=$(qvm-ls --raw-list | grep -v '^dom0$')
+			state_re='[^|]\+'
 			;;
 	esac
+	qubes=$(qvm-ls --raw-data | grep -v '^dom0|' | \
+		grep -i "^[^|]\+|${state_re}|" | cut -f1 -d"|")
 	mapfile -t COMPREPLY < <(compgen -W "${qubes}" -- "${cur}")
 	return 0
 }
@@ -158,8 +153,12 @@ complete -F _qvmcmd-all-filenames qvm-move-to-vm
 _qvmcmd-all-qubeprop() {
 	local property="$1"
 	case "$(_get-cword-pos "${COMP_CWORD}")" in
-		1) _complete-qubes "any_state" ;;
-		2) _complete-qubeprops "$(_get-first-cword)" "${property}" ;;
+		1)
+			_complete-qubes "any_state"
+			;;
+		2)
+			_complete-qubeprops "$(_get-first-cword)" "${property}"
+			;;
 	esac
 }
 
