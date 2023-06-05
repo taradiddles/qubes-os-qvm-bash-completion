@@ -85,6 +85,15 @@ _complete-qubeprops() {
 	mapfile -t COMPREPLY < <(compgen -W "${props}" -- "${cur}")
 }
 
+# Sets COMPREPLY to an array of qvm-tags options
+_complete-qvm-tags-actions() {
+	local cur="${COMP_WORDS[COMP_CWORD]}"
+	local options=$(qvm-tags --help | \
+		sed -ne 's/.*VMNAME {\([^}]\+\)}.*/\1/p' | tr ',' '\n')
+	mapfile -t COMPREPLY < <(compgen -W "${options}" -- "${cur}")
+}
+
+
 # Sets COMPREPLY to an array of file names
 _complete-filenames() {
 	local cur="${COMP_WORDS[COMP_CWORD]}"
@@ -154,12 +163,8 @@ complete -F _qvmcmd-any_state-filenames qvm-move-to-vm
 _qvmcmd-any_state-qubeprop() {
 	local property="$1"
 	case "$(_get-cword-pos "${COMP_CWORD}")" in
-		1)
-			_complete-qubes "any_state"
-			;;
-		2)
-			_complete-qubeprops "$(_get-first-cword)" "${property}"
-			;;
+		1) _complete-qubes "any_state" ;;
+		2) _complete-qubeprops "$(_get-first-cword)" "${property}" ;;
 	esac
 }
 
@@ -169,9 +174,19 @@ complete -F _qvmcmd-any_state-qubeprefs qvm-prefs
 _qvmcmd-any_state-qubefeatures() { _qvmcmd-any_state-qubeprop "features"; }
 complete -F _qvmcmd-any_state-qubefeatures qvm-features
 
-_qvmcmd-any_state-qubetags() { _qvmcmd-any_state-qubeprop "tags"; }
-complete -F _qvmcmd-any_state-qubetags qvm-tags
-
 _qvmcmd-any_state-qubeservice() { _qvmcmd-any_state-qubeprop "service"; }
 complete -F _qvmcmd-any_state-qubeservice qvm-service
+
+
+# complete the first argument with qubes in any state
+# complete the second argument with qvm-tags actions
+# complete the third argument with qube properties (features, prefs, ...)
+_qvmcmd-any_state-qubetags() {
+	case "$(_get-cword-pos "${COMP_CWORD}")" in
+		1) _complete-qubes "any_state" ;;
+		2) _complete-qvm-tags-actions ;;
+		3) _complete-qubeprops "$(_get-first-cword)" "tags" ;;
+	esac
+}
+complete -F _qvmcmd-any_state-qubetags qvm-tags
 
