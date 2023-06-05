@@ -84,17 +84,9 @@ _complete-qubeprops() {
 	local cur="${COMP_WORDS[COMP_CWORD]}"
 	if qvm-check "${qube}" > /dev/null 2>&1; then
 		case "${property}" in
-			prefs)
-				props=$(qvm-prefs "${qube}" | cut -f1 -d " ")
-				;;
-			features)
-				props=$(qvm-features "${qube}" | cut -f1 -d " ")
-				;;
-			tags)
-				props=$(qvm-tags "${qube}" | cut -f1 -d " ")
-				;;
-			service)
-				props=$(qvm-service "${qube}" | cut -f1 -d " ")
+			prefs|features|tags|service)
+				props=$("qvm-${property}" "${qube}" | \
+					cut -f1 -d " ")
 				;;
 		esac
 	fi
