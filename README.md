@@ -1,1 +1,6 @@
-Review and copy `qvm-cmds-bash-completion.bash` to `/etc/bash_completion.d/` in dom0 to have basic tab completion for most qvm-* commands
+(basic) bash completion of Qubes OS dom0 `qvm-*` commands.
+
+Review `qvm-cmds-bash-completion.bash` first as you must copy it to dom0. Then:
+
+  - copy to `/etc/bash_completion.d/`
+  - or, source it from `$HOME/.bashrc`
