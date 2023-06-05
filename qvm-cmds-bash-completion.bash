@@ -13,9 +13,9 @@
 
 
 # ---------------------------------------------------------------------------
-# COMPLETION FUNCTIONS
+# COMP_CWORD related functions
 
-# Output the relative position of COMP_CWORD with option words ignored
+# Get the relative position of COMP_CWORD with option words ignored
 # Note: This logic is flawed when using option arguments (eg. -s blah).
 #       Unfortunately there is no way to solve this except parsing every
 #       known option for a given qvm-* command
@@ -29,7 +29,7 @@ _get-cword-pos() {
 	echo ${index}
 }
 
-# Output the relative position of the first COMP_CWORD with option words ignored
+# Get the relative position of the first COMP_CWORD with option words ignored
 # Note: Same limitation as _get-cword-pos() above.
 _get-first-cword() {
 	local i
@@ -40,6 +40,10 @@ _get-first-cword() {
 	done
 	echo ""
 }
+
+
+# ---------------------------------------------------------------------------
+# Completion functions (set COMPREPLY)
 
 # Sets COMPREPLY to an array of qubes in a given state
 _complete-qubes() {
@@ -64,14 +68,7 @@ _complete-qubes() {
 	return 0
 }
 
-# Filename completion
-_complete-filenames() {
-	local cur="${COMP_WORDS[COMP_CWORD]}"
-	mapfile -t COMPREPLY < <(compgen -f -- "$cur")
-	return 0
-}
-
-# qube prefs / features / tags / service completion
+# Sets COMPREPLY to an array of qube properties (prefs, features, tags, service)
 _complete-qubeprops() {
 	local qube="${1}"
 	local property="${2}"
@@ -88,12 +85,19 @@ _complete-qubeprops() {
 	mapfile -t COMPREPLY < <(compgen -W "${props}" -- "${cur}")
 }
 
+# Sets COMPREPLY to an array of file names
+_complete-filenames() {
+	local cur="${COMP_WORDS[COMP_CWORD]}"
+	mapfile -t COMPREPLY < <(compgen -f -- "$cur")
+	return 0
+}
+
+
 
 # ---------------------------------------------------------------------------
-# qvm-* commands
+# "Link" completion functions to qvm-* commands
 
-# --------------
-# each argument is completed, with qubes in any state
+# complete each argument with qubes in any state
 _qvmcmd-any_state-all_args() {
 	_complete-qubes "any_state"
 }
@@ -101,8 +105,7 @@ complete -F _qvmcmd-any_state-all_args qvm-backup
 complete -F _qvmcmd-any_state-all_args qvm-ls
 
 
-# --------------
-# first argument completed, with qubes in a given state
+# complete the first argument with qubes in a given state
 _qvmcmd-in_state() {
 	local state="$1"
 	[ "$(_get-cword-pos "${COMP_CWORD}")" = 1 ] &&
@@ -133,9 +136,8 @@ _qvmcmd-runtrans() { _qvmcmd-in_state "runtrans"; }
 complete -F _qvmcmd-runtrans qvm-kill
 
 
-# --------------
-# first argument completed, with qubes in any state
-# n>=2 argument completed, with filenames
+# complete the first argument with qubes in any state
+# complete n>=2 arguments with filenames
 _qvmcmd-all-filenames() {
 	if [ "$(_get-cword-pos "${COMP_CWORD}")" = 1 ]; then
 		 _complete-qubes "any_state"
@@ -147,9 +149,8 @@ complete -F _qvmcmd-all-filenames qvm-copy-to-vm
 complete -F _qvmcmd-all-filenames qvm-move-to-vm
 
 
-# --------------
-# first argument completed, with qubes in any state
-# second argument completed, with qube property (service, prefs, features, ...)
+# complete the first argument with qubes in any state
+# complete the second argument with qube properties (features, prefs, ...)
 _qvmcmd-all-qubeprop() {
 	local property="$1"
 	case "$(_get-cword-pos "${COMP_CWORD}")" in
