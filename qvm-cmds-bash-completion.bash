@@ -138,20 +138,20 @@ complete -F _qvmcmd-runtrans qvm-kill
 
 # complete the first argument with qubes in any state
 # complete n>=2 arguments with filenames
-_qvmcmd-all-filenames() {
+_qvmcmd-any_state-filenames() {
 	if [ "$(_get-cword-pos "${COMP_CWORD}")" = 1 ]; then
 		 _complete-qubes "any_state"
 	else
 		_complete-filenames
 	fi
 }
-complete -F _qvmcmd-all-filenames qvm-copy-to-vm
-complete -F _qvmcmd-all-filenames qvm-move-to-vm
+complete -F _qvmcmd-any_state-filenames qvm-copy-to-vm
+complete -F _qvmcmd-any_state-filenames qvm-move-to-vm
 
 
 # complete the first argument with qubes in any state
 # complete the second argument with qube properties (features, prefs, ...)
-_qvmcmd-all-qubeprop() {
+_qvmcmd-any_state-qubeprop() {
 	local property="$1"
 	case "$(_get-cword-pos "${COMP_CWORD}")" in
 		1)
@@ -163,15 +163,15 @@ _qvmcmd-all-qubeprop() {
 	esac
 }
 
-_qvmcmd-all-qubeprefs() { _qvmcmd-all-qubeprop "prefs"; }
-complete -F _qvmcmd-all-qubeprefs qvm-prefs
+_qvmcmd-any_state-qubeprefs() { _qvmcmd-any_state-qubeprop "prefs"; }
+complete -F _qvmcmd-any_state-qubeprefs qvm-prefs
 
-_qvmcmd-all-qubefeatures() { _qvmcmd-all-qubeprop "features"; }
-complete -F _qvmcmd-all-qubefeatures qvm-features
+_qvmcmd-any_state-qubefeatures() { _qvmcmd-any_state-qubeprop "features"; }
+complete -F _qvmcmd-any_state-qubefeatures qvm-features
 
-_qvmcmd-all-qubetags() { _qvmcmd-all-qubeprop "tags"; }
-complete -F _qvmcmd-all-qubetags qvm-tags
+_qvmcmd-any_state-qubetags() { _qvmcmd-any_state-qubeprop "tags"; }
+complete -F _qvmcmd-any_state-qubetags qvm-tags
 
-_qvmcmd-all-qubeservice() { _qvmcmd-all-qubeprop "service"; }
-complete -F _qvmcmd-all-qubeservice qvm-service
+_qvmcmd-any_state-qubeservice() { _qvmcmd-any_state-qubeprop "service"; }
+complete -F _qvmcmd-any_state-qubeservice qvm-service
 
